@@ -1,0 +1,10 @@
+# Cloud Build pipeline configuration
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'gcr.io/incubation-ids/angular', '.']
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'gcr.io/incubation-ids/angular']
+- name: 'gcloud'
+  args: ['deploy', 'releases', 'create', '--image=gcr.io/incubation-ids/angular', '--track=dev']
+- name: 'gcloud'
+  args: ['deploy', 'releases', 'create', '--image=gcr.io/incubation-ids/angular', '--track=prod', '--strategy=canary', '--canary-traffic=10', '--canary-timeout=30m']
