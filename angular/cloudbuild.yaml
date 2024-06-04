@@ -1,7 +1,7 @@
 # Cloud Build pipeline configuration
 steps:
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'gcr.io/incubation-ids/angular', '.']
+  args: ['build', '-t', 'gcr.io/incubation-ids/angular', 'angular/']
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', 'gcr.io/incubation-ids/angular']
 - name: 'gcloud'
