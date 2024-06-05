@@ -13,14 +13,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Get the Cloud SQL connection name from the environment variable
+CLOUD_SQL_CONNECTION_NAME = os.environ.get("CLOUD_SQL_CONNECTION_NAME")
+
 async def get_users_from_db():
-    conn = await asyncpg.connect(
-        user='test-demo',
-        password='test-demo',
-        database='postgres',
-        host='127.0.0.1',  # Connect to the proxy on localhost
-        port=5432
-    )
+    # Connect to Cloud SQL using the connection name
+    conn = await asyncpg.connect(CLOUD_SQL_CONNECTION_NAME)
     try:
         users = await conn.fetch("SELECT * FROM users")  # Adjust your query as needed
         return [dict(user) for user in users]
