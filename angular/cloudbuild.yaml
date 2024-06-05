@@ -68,5 +68,4 @@ steps:
 options:
   logging: 'CLOUD_LOGGING_ONLY'
 serviceAccount: '816155259029-compute@developer.gserviceaccount.com'
-triggers:
-- branch: 'main'
+
