@@ -1,40 +1,38 @@
-steps:
-# Step 1: Build the Docker image
-- name: 'gcr.io/cloud-builders/docker'
-  args: 
-    - 'build'
-    - '-t'
-    - 'europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest'
-    - 'angular/'
+apiVersion: deploy.cloud.google.com/v1
+kind: DeliveryPipeline
+metadata:
+  name: angular-delivery-pipeline
+  description: main application pipeline
+serialPipeline:
+  stages:
+    # targetId mentions the name of the Target which given below
+    - targetId: angular-deployment
+---
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+metadata:
+  name: angular-deployment
+  description: development cluster
+gke:
+  # give the project location and name of the cluster
+  cluster: projects/incubation-ids/locations/europe-west1/clusters/demo-cluster-1
 
-# Step 2: Push the Docker image
-- name: 'gcr.io/cloud-builders/docker'
-  args: 
-    - 'push'
-    - 'europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest'
+---
+apiVersion: deploy.cloud.google.com/v1
+kind: CanaryConfig
+metadata:
+  name: angular-canary-config
+  description: Canary configuration for Angular app
+spec:
+  # Percentage of traffic to send to the canary version
+  percentage: 20
+  # Canary version details
+  canaryVersion:
+    # Number of replicas for canary version
+    numReplicas: 2
+    # Annotations for canary version pods
+    podAnnotations:
+      prometheus.io/path: /metrics
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "8080"
 
-# Step 3: Apply Cloud Deploy configuration
-- name: 'gcr.io/cloud-builders/gcloud'
-  args:
-    - 'deploy'
-    - 'apply'
-    - '--file=angular/clouddeploy.yaml'
-    - '--region=europe-west9'
-    - '--project=incubation-ids'
-
-# Step 4: Create a new release
-- name: 'gcr.io/cloud-builders/gcloud'
-  entrypoint: 'bash'
-  args:
-    - '-c'
-    - |
-      gcloud deploy releases create release-angular-$BUILD_ID \
-        --delivery-pipeline=angular-delivery-pipeline \
-        --region=europe-west9 \
-        --source=angular/ \
-        --images=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest \
-        --project=incubation-ids || true
-
-options:
-  logging: 'CLOUD_LOGGING_ONLY'
-serviceAccount: '816155259029-compute@developer.gserviceaccount.com'
