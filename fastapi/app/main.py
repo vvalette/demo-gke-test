@@ -18,7 +18,7 @@ async def get_users_from_db():
         user='test-demo',
         password='test-demo',
         database='my_database',
-        host='146.148.21.236',
+        host='34.163.192.144',
         port=5432
     )
     users = await conn.fetch("SELECT * FROM users")  # Adjust your query as needed
