@@ -1,19 +1,21 @@
 steps:
-# Step 1: Build the Docker image
-- name: 'gcr.io/cloud-builders/docker'
+# Build the Docker image
+- name: 'gcr.io/cloud-builders/docker:latest'
   args: 
     - 'build'
     - '-t'
     - 'europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest'
     - 'angular/'
 
-# Step 2: Push the Docker image
-- name: 'gcr.io/cloud-builders/docker'
+# Push the Docker image
+- name: 'gcr.io/cloud-builders/gsutil'
   args: 
-    - 'push'
+    - 'cp'
+    - '-r'
     - 'europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest'
+    - 'gs://my-bucket/angular-images/'
 
-# Step 3: Apply Cloud Deploy configuration for DEV environment
+# Apply Cloud Deploy configuration for DEV environment
 - name: 'gcr.io/cloud-builders/gcloud'
   args:
     - 'deploy'
@@ -23,7 +25,7 @@ steps:
     - '--project=incubation-ids'
     - '--target=angular-deployment'
 
-# Step 4: Create a new release for DEV environment
+# Create a new release for DEV environment
 - name: 'gcr.io/cloud-builders/gcloud'
   entrypoint: 'bash'
   args:
@@ -33,11 +35,11 @@ steps:
         --delivery-pipeline=angular-delivery-pipeline \
         --region=europe-west9 \
         --source=angular/ \
-        --images=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest \
+        --images=gs://my-bucket/angular-images/angular:latest=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest \
         --project=incubation-ids \
         --target=angular-deployment || true
 
-# Step 5: Apply Cloud Deploy configuration for PROD environment
+# Apply Cloud Deploy configuration for PROD environment
 - name: 'gcr.io/cloud-builders/gcloud'
   args:
     - 'deploy'
@@ -47,7 +49,7 @@ steps:
     - '--project=incubation-ids'
     - '--target=angular-deployment-prod'
 
-# Step 6: Create a new release for PROD environment with canary strategy
+# Create a new release for PROD environment with canary strategy
 - name: 'gcr.io/cloud-builders/gcloud'
   entrypoint: 'bash'
   args:
@@ -57,7 +59,7 @@ steps:
         --delivery-pipeline=angular-delivery-pipeline \
         --region=europe-west9 \
         --source=angular/ \
-        --images=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest \
+        --images=gs://my-bucket/angular-images/angular:latest=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest \
         --project=incubation-ids \
         --target=angular-deployment-prod \
         --strategy=canary \
@@ -66,3 +68,5 @@ steps:
 options:
   logging: 'CLOUD_LOGGING_ONLY'
 serviceAccount: '816155259029-compute@developer.gserviceaccount.com'
+triggers:
+- branch: 'main'
