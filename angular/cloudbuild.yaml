@@ -35,7 +35,7 @@ steps:
         --delivery-pipeline=angular-delivery-pipeline \
         --region=europe-west9 \
         --source=angular/ \
-        --images=gs://my-bucket/angular-images/angular:latest=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest \
+        --images=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest \
         --project=incubation-ids \
         --target=angular-deployment || true
 
@@ -59,7 +59,7 @@ steps:
         --delivery-pipeline=angular-delivery-pipeline \
         --region=europe-west9 \
         --source=angular/ \
-        --images=gs://my-bucket/angular-images/angular:latest=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest \
+        --images=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest \
         --project=incubation-ids \
         --target=angular-deployment-prod \
         --strategy=canary \
