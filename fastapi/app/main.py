@@ -13,12 +13,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Get the Cloud SQL connection name from the environment variable
-CLOUD_SQL_CONNECTION_NAME = os.environ.get("CLOUD_SQL_CONNECTION_NAME")
-print(f"Connection name: {CLOUD_SQL_CONNECTION_NAME}")
 async def get_users_from_db():
-    # Connect to Cloud SQL using the connection name
-    conn = await asyncpg.connect(CLOUD_SQL_CONNECTION_NAME)
+    conn = await asyncpg.connect(
+        user='test-demo',
+        password='test-demo',
+        database='my_database',
+        host='incubation-ids:europe-west1:my-sql-instance',
+        port=5432
+    )
     try:
         users = await conn.fetch("SELECT * FROM users")  # Adjust your query as needed
         return [dict(user) for user in users]
