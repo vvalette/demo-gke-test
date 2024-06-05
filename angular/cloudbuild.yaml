@@ -1,38 +1,40 @@
-apiVersion: deploy.cloud.google.com/v1
-kind: DeliveryPipeline
-metadata:
-  name: angular-delivery-pipeline
-  description: main application pipeline
-serialPipeline:
-  stages:
-    - targetId: angular-deployment
+steps:
+# Step 1: Build the Docker image
+- name: 'gcr.io/cloud-builders/docker'
+  args: 
+    - 'build'
+    - '-t'
+    - 'europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest'
+    - 'angular/'
 
----
-apiVersion: deploy.cloud.google.com/v1
-kind: Target
-metadata:
-  name: angular-deployment
-  description: development cluster
-gke:
-  cluster: projects/incubation-ids/locations/europe-west1/clusters/demo-cluster-1
+# Step 2: Push the Docker image
+- name: 'gcr.io/cloud-builders/docker'
+  args: 
+    - 'push'
+    - 'europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest'
 
----
-apiVersion: networking.cloud.google.com/v1beta1
-kind: CanaryConfig
-metadata:
-  name: angular-canary-config
-  namespace: default
-spec:
-  backendService: your-backend-service-name
-  defaultService: your-default-service-name
-  numBaselineReplicas: 5
-  numCanaryReplicas: 2
-  baselinePercent: 80
-  name: your-canary-config-name
-  maxSurge: 20%
-  maxUnavailable: 0
-  interval: 60s
-  timeout: 60s
-  healthyThreshold: 3
-  unhealthyThreshold: 3
-  host: your-host
+# Step 3: Apply Cloud Deploy configuration
+- name: 'gcr.io/cloud-builders/gcloud'
+  args:
+    - 'deploy'
+    - 'apply'
+    - '--file=angular/clouddeploy.yaml'
+    - '--region=europe-west9'
+    - '--project=incubation-ids'
+
+# Step 4: Create a new release
+- name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: 'bash'
+  args:
+    - '-c'
+    - |
+      gcloud deploy releases create release-angular-$BUILD_ID \
+        --delivery-pipeline=angular-delivery-pipeline \
+        --region=europe-west9 \
+        --source=angular/ \
+        --images=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest \
+        --project=incubation-ids || true
+
+options:
+  logging: 'CLOUD_LOGGING_ONLY'
+serviceAccount: '816155259029-compute@developer.gserviceaccount.com'
