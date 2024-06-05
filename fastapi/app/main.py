@@ -21,13 +21,9 @@ async def get_users_from_db():
         host='incubation-ids:europe-west1:my-sql-instance',
         port=5432
     )
-    try:
-        users = await conn.fetch("SELECT * FROM users")  # Adjust your query as needed
-        return [dict(user) for user in users]
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    finally:
-        await conn.close()
+    users = await conn.fetch("SELECT * FROM users")  # Adjust your query as needed
+    return [dict(user) for user in users]
+
 
 @app.get("/users")
 async def get_users():
