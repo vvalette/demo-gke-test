@@ -187,51 +187,23 @@ metadata:
     cloud.google.com/neg: '{"ingress":true}'
   finalizers:
     - service.kubernetes.io/load-balancer-cleanup
-  managedFields:
-    - apiVersion: v1
-      fieldsType: FieldsV1
-      fieldsV1:
-        'f:spec':
-          'f:allocateLoadBalancerNodePorts': {}
-          'f:externalTrafficPolicy': {}
-          'f:internalTrafficPolicy': {}
-          'f:ports':
-            .: {}
-            'k:{"port":80,"protocol":"TCP"}':
-              .: {}
-              'f:port': {}
-              'f:protocol': {}
-              'f:targetPort': {}
-          'f:selector': {}
-          'f:sessionAffinity': {}
-          'f:type': {}
-      manager: HashiCorp
-      operation: Update
-      time: '2024-05-30T12:03:28Z'
-    - apiVersion: v1
-      fieldsType: FieldsV1
-      fieldsV1:
-        'f:metadata':
-          'f:finalizers':
-            .: {}
-            'v:"service.kubernetes.io/load-balancer-cleanup"': {}
-        'f:status':
-          'f:loadBalancer':
-            'f:ingress': {}
-      manager: cloud-controller-manager
-      operation: Update
-      subresource: status
-      time: '2024-05-30T12:04:09Z'
   name: backend
   namespace: demo-namespace
 spec:
   allocateLoadBalancerNodePorts: true
   clusterIP: 34.118.227.3
-  clusterIPs:
-    - 34.118.227.3
   externalTrafficPolicy: Cluster
   internalTrafficPolicy: Cluster
   ipFamilies:
     - IPv4
   ipFamilyPolicy: SingleStack
+  ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: 80
+  selector:
+    app: backend
+  sessionAffinity: None
+  type: LoadBalancer
  
