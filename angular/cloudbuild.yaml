@@ -1,7 +1,7 @@
 steps:
 # if the docker file is not in the same location then give a full path otherwise use “.”
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t','europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest', '.']
+  args: ['build', '-t','europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest', 'angular/']
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', 'europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest']
 - name: 'gcr.io/cloud-builders/gcloud'
