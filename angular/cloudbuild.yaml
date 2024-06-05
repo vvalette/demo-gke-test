@@ -41,7 +41,8 @@ steps:
   args:
     - '-c'
     - |
-      gcloud deploy releases promote release-angular-$BUILD_ID \
+      RELEASE_NAME=$(echo -n "release-angular-$BUILD_ID" | md5sum | cut -c 1-32)
+      gcloud deploy releases promote $RELEASE_NAME \
         --delivery-pipeline=angular-delivery-pipeline \
         --region=europe-west9 \
         --project=incubation-ids || true
