@@ -28,8 +28,8 @@ steps:
   args:
     - '-c'
     - |
-      RELEASE_NAME="release-$(date +%Y%m%d%H%M%S)"
-      gcloud deploy releases create $RELEASE_NAME \
+      RELEASE_NAME=$(date +%Y%m%d%H%M%S)
+      gcloud deploy releases create release-$RELEASE_NAME \
         --delivery-pipeline=fastapi-delivery-pipeline \
         --region=europe-west9 \
         --source=fastapi/ \
@@ -39,3 +39,5 @@ steps:
 options:
   logging: 'CLOUD_LOGGING_ONLY'
 serviceAccount: '816155259029-compute@developer.gserviceaccount.com'
+substitutions:
+  _RELEASE_NAME: $(date +%Y%m%d%H%M%S)
