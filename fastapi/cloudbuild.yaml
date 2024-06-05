@@ -39,5 +39,3 @@ steps:
 options:
   logging: 'CLOUD_LOGGING_ONLY'
 serviceAccount: '816155259029-compute@developer.gserviceaccount.com'
-substitutions:
-  _RELEASE_NAME: $(date +%Y%m%d%H%M%S)
