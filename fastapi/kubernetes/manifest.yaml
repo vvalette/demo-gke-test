@@ -141,6 +141,28 @@ spec:
             capabilities:
               drop:
                 - NET_RAW
+        - name: cloud-sql-proxy
+          image: gcr.io/cloudsql-docker/gce-proxy:1.31.1
+          command: ["/cloud_sql_proxy"]
+          args:
+            - "--dir=/cloudsql"
+            - "--instances=incubation-ids:europe-west9:my-sql-instance=tcp:5432"
+            - "--credential_file=/secrets/cloudsql/credentials.json"
+          volumeMounts:
+            - name: cloudsql-instance-credentials
+              mountPath: /secrets/cloudsql
+              readOnly: true
+          securityContext:
+            capabilities:
+              drop:
+                - NET_RAW
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "200m"
       enableServiceLinks: true
       securityContext:
         seccompProfile:
@@ -153,6 +175,10 @@ spec:
           key: kubernetes.io/arch
           operator: Equal
           value: amd64
+      volumes:
+        - name: cloudsql-instance-credentials
+          secret:
+            secretName: cloud-sql-instance-credentials
 ---
 apiVersion: v1
 kind: Service
@@ -208,12 +234,4 @@ spec:
   ipFamilies:
     - IPv4
   ipFamilyPolicy: SingleStack
-  ports:
-    - nodePort: 31644
-      port: 80
-      protocol: TCP
-      targetPort: 80
-  selector:
-    app: backend
-  sessionAffinity: None
-  type: LoadBalancer
+ 
