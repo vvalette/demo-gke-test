@@ -56,6 +56,6 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: <image-name>
+        image: europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest
         ports:
         - containerPort: 80
