@@ -15,4 +15,4 @@ steps:
   - >
    
     # release--$SHORT_SHA
-    gcloud deploy releases create release-shubhi1 --delivery-pipeline=shubhi-pl --region=europe-west9 --source=./ --images=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest --project=incubation-ids
+    gcloud deploy releases create release-angular --delivery-pipeline=angular-delivry-pipeline --region=europe-west9 --source=angular/ --images=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest --project=incubation-ids
