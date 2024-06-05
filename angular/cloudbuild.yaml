@@ -34,3 +34,7 @@ steps:
     - '--source=angular/'
     - '--images=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest'
     - '--project=incubation-ids'
+
+options:
+  logging: 'CLOUD_LOGGING_ONLY'
+serviceAccount: 'cloud-build@incubation-ids.iam.gserviceaccount.com'
