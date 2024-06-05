@@ -13,6 +13,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 async def get_users_from_db():
     conn = await asyncpg.connect(
         user='test-demo',
