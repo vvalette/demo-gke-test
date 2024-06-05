@@ -1,19 +1,17 @@
 steps:
-# Build the Docker image
-- name: 'gcr.io/cloud-builders/docker:latest'
+# Step 1: Build the Docker image
+- name: 'gcr.io/cloud-builders/docker'
   args: 
     - 'build'
     - '-t'
     - 'europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest'
     - 'angular/'
 
-# Push the Docker image
-- name: 'gcr.io/cloud-builders/gsutil'
+# Step 2: Push the Docker image
+- name: 'gcr.io/cloud-builders/docker'
   args: 
-    - 'cp'
-    - '-r'
+    - 'push'
     - 'europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest'
-    - 'gs://my-bucket/angular-images/'
 
 # Apply Cloud Deploy configuration for DEV environment
 - name: 'gcr.io/cloud-builders/gcloud'
