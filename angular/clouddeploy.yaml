@@ -5,8 +5,8 @@ metadata:
   description: main application pipeline
 serialPipeline:
   stages:
+    # targetId mentions the name of the Target which given below
     - targetId: angular-deployment
-
 ---
 apiVersion: deploy.cloud.google.com/v1
 kind: Target
@@ -14,26 +14,5 @@ metadata:
   name: angular-deployment
   description: development cluster
 gke:
+  # give the project location and name of the cluster
   cluster: projects/incubation-ids/locations/europe-west1/clusters/demo-cluster-1
-
----
-apiVersion: deploy.cloud.google.com/v1
-kind: CanaryConfig
-metadata:
-  name: angular-canary-config
-  description: Configuration for Canary Deployment
-  spec:
-    baseline:
-      tag: latest
-      numReplicas: 5
-    canary:
-      tag: canary
-      numReplicas: 2
-    analysis:
-      metrics:
-        - metric: request-duration
-          threshold: 0.1
-        - metric: error-rate
-          threshold: 0.01
-      interval: 1m
-      tolerance: 0.05
