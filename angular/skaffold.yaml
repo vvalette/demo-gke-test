@@ -1,7 +1,7 @@
 apiVersion: skaffold/v2beta16
 kind: Config
 deploy:
-kubectl:
-#name of the kubernetes yaml file
-manifests:
-- manifest.yaml
+  kubectl:
+  #name of the kubernetes yaml file
+    manifests:
+    - manifest.yaml
