@@ -29,7 +29,7 @@ steps:
     - '-c'
     - |
       gcloud deploy releases create release-angular-$BUILD_ID \
-        --delivery-pipeline=-delivery-pipeline \
+        --delivery-pipeline=angular-delivery-pipeline \
         --region=europe-west9 \
         --source=angular/ \
         --images=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest \
