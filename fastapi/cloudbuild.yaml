@@ -28,13 +28,13 @@ steps:
   args:
     - '-c'
     - |
-      RELEASE_NAME=$BUILD_ID
-      gcloud deploy releases create release-$RELEASE_NAME-fastapi \
+      gcloud deploy releases create release-$BUILD_ID-fastapi \
         --delivery-pipeline=fastapi-delivery-pipeline \
         --region=europe-west9 \
         --source=fastapi/ \
         --images=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/fastapi:latest=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/fastapi:latest \
         --project=incubation-ids || true
+
 
 options:
   logging: 'CLOUD_LOGGING_ONLY'
