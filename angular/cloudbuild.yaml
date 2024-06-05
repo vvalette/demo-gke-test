@@ -1,10 +1,18 @@
-# Cloud Build pipeline configuration
 steps:
+# if the docker file is not in the same location then give a full path otherwise use “.”
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'gcr.io/incubation-ids/angular', 'angular/']
+  args: ['build', '-t','europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest', '.']
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['push', 'gcr.io/incubation-ids/angular']
-- name: 'gcloud'
-  args: ['deploy', 'releases', 'create', '--image=gcr.io/incubation-ids/angular', '--track=dev']
-- name: 'gcloud'
-  args: ['deploy', 'releases', 'create', '--image=gcr.io/incubation-ids/angular', '--track=prod', '--strategy=canary', '--canary-traffic=10', '--canary-timeout=30m']
+  args: ['push', 'europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest']
+- name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - >
+    gcloud deploy apply --file=clouddeploy.yaml --region=europe-west9 --project=incubation-ids
+  args:
+  - '-c'
+  - >
+   
+    # release--$SHORT_SHA
+    gcloud deploy releases create release-shubhi1 --delivery-pipeline=shubhi-pl --region=europe-west9 --source=./ --images=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest --project=incubation-ids
