@@ -4,7 +4,7 @@ metadata:
   labels:
     app: frontend
   name: frontend
-  namespace: demo-namespace
+  namespace: demo-namespace-prod
 spec:
   replicas: 3
   selector:
@@ -67,14 +67,13 @@ metadata:
   finalizers:
     - service.kubernetes.io/load-balancer-cleanup
   name: frontend
-  namespace: demo-namespace
+  namespace: demo-namespace-prod
 spec:
   allocateLoadBalancerNodePorts: true
   externalTrafficPolicy: Cluster
   internalTrafficPolicy: Cluster
   ports:
-    - nodePort: 31497
-      port: 80
+    - port: 80
       protocol: TCP
       targetPort: 80
   selector:
