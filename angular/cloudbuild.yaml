@@ -28,7 +28,7 @@ steps:
     - 'deploy'
     - 'releases'
     - 'create'
-    - 'release-angular'
+    - "$DATE-angular-release"
     - '--delivery-pipeline=angular-delivery-pipeline'
     - '--region=europe-west9'
     - '--source=angular/'
