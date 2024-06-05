@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  apiUrl: 'http://<backend-service-ip>:8000'
+  apiUrl: 'http://<backend-service-ip>:80'
 };
 
 /*
