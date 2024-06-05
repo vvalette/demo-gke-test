@@ -13,7 +13,7 @@ steps:
     - 'push'
     - 'europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest'
 
-# Apply Cloud Deploy configuration for DEV environment
+# Step 3: Apply Cloud Deploy configuration
 - name: 'gcr.io/cloud-builders/gcloud'
   args:
     - 'deploy'
@@ -22,7 +22,7 @@ steps:
     - '--region=europe-west9'
     - '--project=incubation-ids'
 
-# Create a new release for DEV environment
+# Step 4: Create a new release and promote it
 - name: 'gcr.io/cloud-builders/gcloud'
   entrypoint: 'bash'
   args:
@@ -33,18 +33,8 @@ steps:
         --region=europe-west9 \
         --source=angular/ \
         --images=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest \
-        --project=incubation-ids || true
-
-# Promote the release to the DEV environment
-- name: 'gcr.io/cloud-builders/gcloud'
-  entrypoint: 'bash'
-  args:
-    - '-c'
-    - |
-      gcloud deploy releases promote release-angular-$BUILD_ID \
-        --delivery-pipeline=angular-delivery-pipeline \
-        --region=europe-west9 \
-        --project=incubation-ids || true
+        --project=incubation-ids \
+        --promote || true
 
 options:
   logging: 'CLOUD_LOGGING_ONLY'
