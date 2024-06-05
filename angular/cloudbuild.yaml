@@ -13,7 +13,7 @@ steps:
     - 'push'
     - 'europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest'
 
-# Step 3: Apply Cloud Deploy configuration
+# Step 3: Apply Cloud Deploy configuration for DEV environment
 - name: 'gcr.io/cloud-builders/gcloud'
   args:
     - 'deploy'
@@ -21,8 +21,9 @@ steps:
     - '--file=angular/clouddeploy.yaml'
     - '--region=europe-west9'
     - '--project=incubation-ids'
+    - '--target=angular-deployment'
 
-# Step 4: Create a new release
+# Step 4: Create a new release for DEV environment
 - name: 'gcr.io/cloud-builders/gcloud'
   entrypoint: 'bash'
   args:
@@ -33,7 +34,34 @@ steps:
         --region=europe-west9 \
         --source=angular/ \
         --images=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest \
-        --project=incubation-ids || true
+        --project=incubation-ids \
+        --target=angular-deployment || true
+
+# Step 5: Apply Cloud Deploy configuration for PROD environment
+- name: 'gcr.io/cloud-builders/gcloud'
+  args:
+    - 'deploy'
+    - 'apply'
+    - '--file=angular/clouddeploy.yaml'
+    - '--region=europe-west9'
+    - '--project=incubation-ids'
+    - '--target=angular-deployment-prod'
+
+# Step 6: Create a new release for PROD environment with canary strategy
+- name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: 'bash'
+  args:
+    - '-c'
+    - |
+      gcloud deploy releases create release-angular-prod-$BUILD_ID \
+        --delivery-pipeline=angular-delivery-pipeline \
+        --region=europe-west9 \
+        --source=angular/ \
+        --images=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest \
+        --project=incubation-ids \
+        --target=angular-deployment-prod \
+        --strategy=canary \
+        --canary-config=percent=10,step=10,start-step=0 || true
 
 options:
   logging: 'CLOUD_LOGGING_ONLY'

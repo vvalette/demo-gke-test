@@ -5,3 +5,4 @@ deploy:
   #name of the kubernetes yaml file
     manifests:
     - kubernetes/manifest.yaml
+    - kubernetes/manifest-prod.yaml
