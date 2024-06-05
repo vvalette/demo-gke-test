@@ -1,0 +1,18 @@
+apiVersion: deploy.cloud.google.com/v1
+kind: DeliveryPipeline
+metadata:
+  name: angular-delivery-pipeline
+  description: main application pipeline
+serialPipeline:
+  stages:
+    # targetId mentions the name of the Target which given below
+    - targetId: angular-deployment
+---
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+metadata:
+  name: angular-deployment
+  description: development cluster
+gke:
+  # give the project location and name of the cluster
+  cluster: projects/incubation-ids/locations/europe-west1/clusters/demo-cluster-1

@@ -1,0 +1,40 @@
+steps:
+# Step 1: Build the Docker image
+- name: 'gcr.io/cloud-builders/docker'
+  args: 
+    - 'build'
+    - '-t'
+    - 'europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/fastapi:latest'
+    - 'fastapi/'
+
+# Step 2: Push the Docker image
+- name: 'gcr.io/cloud-builders/docker'
+  args: 
+    - 'push'
+    - 'europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/fastapi:latest'
+
+# Step 3: Apply Cloud Deploy configuration
+- name: 'gcr.io/cloud-builders/gcloud'
+  args:
+    - 'deploy'
+    - 'apply'
+    - '--file=fastapi/clouddeploy.yaml'
+    - '--region=europe-west9'
+    - '--project=incubation-ids'
+
+# Step 4: Create a new release
+- name: 'gcr.io/cloud-builders/gcloud'
+  args:
+    - 'deploy'
+    - 'releases'
+    - 'create'
+    - 'release-fastapi'
+    - '--delivery-pipeline=fastapi-delivery-pipeline'
+    - '--region=europe-west9'
+    - '--source=fastapi/'
+    - '--images=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/fastapi:latest=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/fastapi:latest'
+    - '--project=incubation-ids'
+
+options:
+  logging: 'CLOUD_LOGGING_ONLY'
+serviceAccount: '816155259029-compute@developer.gserviceaccount.com'
