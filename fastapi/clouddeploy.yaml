@@ -1,17 +1,17 @@
 apiVersion: deploy.cloud.google.com/v1
 kind: DeliveryPipeline
 metadata:
-  name: angular-delivery-pipeline
+  name: fastapi-delivery-pipeline
   description: main application pipeline
 serialPipeline:
   stages:
     # targetId mentions the name of the Target which given below
-    - targetId: angular-deployment
+    - targetId: fastapi-deployment
 ---
 apiVersion: deploy.cloud.google.com/v1
 kind: Target
 metadata:
-  name: angular-deployment
+  name: fastapi-deployment
   description: development cluster
 gke:
   # give the project location and name of the cluster

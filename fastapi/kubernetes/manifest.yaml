@@ -122,7 +122,7 @@ spec:
     spec:
       automountServiceAccountToken: true
       containers:
-        - image: gcr.io/incubation-ids/github.com/vvalette/demo-gke-test
+        - image: europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/fastapi:latest
           imagePullPolicy: Always
           name: backend
           ports:
