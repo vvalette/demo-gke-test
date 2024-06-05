@@ -28,7 +28,7 @@ steps:
     - 'deploy'
     - 'releases'
     - 'create'
-    - "$(date +'%Y%m%d%H%M%S')-fastapi-release"
+    - "$DATE-fastapi-release"
     - '--delivery-pipeline=fastapi-delivery-pipeline'
     - '--region=europe-west9'
     - '--source=fastapi/'
