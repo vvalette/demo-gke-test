@@ -22,19 +22,18 @@ steps:
     - '--region=europe-west9'
     - '--project=incubation-ids'
 
-# Step 4: Generate a unique release name
+# Step 4: Create a new release
 - name: 'gcr.io/cloud-builders/gcloud'
-  entrypoint: 'bash'
   args:
-    - '-c'
-    - |
-      RELEASE_NAME=$(date +%Y%m%d%H%M%S)
-      gcloud deploy releases create release-$RELEASE_NAME \
-        --delivery-pipeline=fastapi-delivery-pipeline \
-        --region=europe-west9 \
-        --source=fastapi/ \
-        --images=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/fastapi:latest=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/fastapi:latest \
-        --project=incubation-ids || true
+    - 'deploy'
+    - 'releases'
+    - 'create'
+    - 'release-fastapi'
+    - '--delivery-pipeline=fastapi-delivery-pipeline'
+    - '--region=europe-west9'
+    - '--source=fastapi/'
+    - '--images=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/fastapi:latest=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/fastapi:latest'
+    - '--project=incubation-ids'
 
 options:
   logging: 'CLOUD_LOGGING_ONLY'
