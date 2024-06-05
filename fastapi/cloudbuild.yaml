@@ -28,7 +28,7 @@ steps:
   args:
     - '-c'
     - |
-      gcloud deploy releases create release-$BUILD_ID-fastapi \
+      gcloud deploy releases create release-fastapi-$BUILD_ID \
         --delivery-pipeline=fastapi-delivery-pipeline \
         --region=europe-west9 \
         --source=fastapi/ \
