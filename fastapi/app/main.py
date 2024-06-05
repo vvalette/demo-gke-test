@@ -15,7 +15,7 @@ app.add_middleware(
 
 # Get the Cloud SQL connection name from the environment variable
 CLOUD_SQL_CONNECTION_NAME = os.environ.get("CLOUD_SQL_CONNECTION_NAME")
-
+print(f"Connection name: {CLOUD_SQL_CONNECTION_NAME}")
 async def get_users_from_db():
     # Connect to Cloud SQL using the connection name
     conn = await asyncpg.connect(CLOUD_SQL_CONNECTION_NAME)
