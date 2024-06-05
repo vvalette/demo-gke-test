@@ -21,7 +21,6 @@ steps:
     - '--file=angular/clouddeploy.yaml'
     - '--region=europe-west9'
     - '--project=incubation-ids'
-    - '--target=angular-deployment'
 
 # Create a new release for DEV environment
 - name: 'gcr.io/cloud-builders/gcloud'
@@ -34,8 +33,7 @@ steps:
         --region=europe-west9 \
         --source=angular/ \
         --images=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest \
-        --project=incubation-ids \
-        --target=angular-deployment || true
+        --project=incubation-ids || true
 
 # Apply Cloud Deploy configuration for PROD environment
 - name: 'gcr.io/cloud-builders/gcloud'
@@ -45,7 +43,6 @@ steps:
     - '--file=angular/clouddeploy.yaml'
     - '--region=europe-west9'
     - '--project=incubation-ids'
-    - '--target=angular-deployment-prod'
 
 # Create a new release for PROD environment with canary strategy
 - name: 'gcr.io/cloud-builders/gcloud'
@@ -59,11 +56,9 @@ steps:
         --source=angular/ \
         --images=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest \
         --project=incubation-ids \
-        --target=angular-deployment-prod \
         --strategy=canary \
         --canary-config=percent=10,step=10,start-step=0 || true
 
 options:
   logging: 'CLOUD_LOGGING_ONLY'
 serviceAccount: '816155259029-compute@developer.gserviceaccount.com'
-
