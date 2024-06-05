@@ -3,7 +3,12 @@ apiVersion: skaffold/v2beta16
 kind: Config
 deploy:
   kubectl:
-  #name of the kubernetes yaml file
+    # name of the Kubernetes YAML file
     manifests:
-    - kubernetes/manifest.yaml
-    - kubernetes/manifest-prod.yaml
+      - kubernetes/manifest.yaml
+      - kubernetes/manifest-prod.yaml
+verify:
+  kubectl:
+    # name of the Kubernetes YAML file for verification
+    manifests:
+      - kubernetes/manifest-prod.yaml  # Adjust this to your production deployment YAML file
