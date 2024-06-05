@@ -4,4 +4,4 @@ deploy:
   kubectl:
   #name of the kubernetes yaml file
     manifests:
-    - manifest.yaml
+    - kubernetes/manifest.yaml
