@@ -28,8 +28,8 @@ steps:
   args:
     - '-c'
     - |
-      RELEASE_NAME=$(date +"%Y%m%d%H%M%S")
-      gcloud deploy releases create $RELEASE_NAME-fastapi-release \
+      RELEASE_NAME=$BUILD_ID
+      gcloud deploy releases create release-$RELEASE_NAME-fastapi \
         --delivery-pipeline=fastapi-delivery-pipeline \
         --region=europe-west9 \
         --source=fastapi/ \
