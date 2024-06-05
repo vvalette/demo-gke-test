@@ -5,8 +5,8 @@ metadata:
   description: main application pipeline
 serialPipeline:
   stages:
-    # targetId mentions the name of the Target which given below
     - targetId: angular-deployment
+
 ---
 apiVersion: deploy.cloud.google.com/v1
 kind: Target
@@ -14,7 +14,6 @@ metadata:
   name: angular-deployment
   description: development cluster
 gke:
-  # give the project location and name of the cluster
   cluster: projects/incubation-ids/locations/europe-west1/clusters/demo-cluster-1
 
 ---
@@ -24,15 +23,15 @@ metadata:
   name: angular-canary-config
   description: Canary configuration for Angular app
 spec:
-  # Percentage of traffic to send to the canary version
-  percentage: 20
-  # Canary version details
-  canaryVersion:
-    # Number of replicas for canary version
+  baseline:
+    numReplicas: 5
+  canary:
     numReplicas: 2
-    # Annotations for canary version pods
-    podAnnotations:
-      prometheus.io/path: /metrics
-      prometheus.io/scrape: "true"
-      prometheus.io/port: "8080"
-
+  analysis:
+    metric: request-duration
+    threshold: 0.1
+    interval: 1m
+    tolerance: 0.05
+    additionalMetrics:
+      - metric: error-rate
+        threshold: 0.01
