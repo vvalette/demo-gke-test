@@ -1,21 +1,17 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: frontend-prod
-  namespace: demo-namespace-prod
   labels:
     app: frontend
+  name: frontend
+  namespace: demo-namespace
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: frontend
   strategy:
-    canary:
-      canary:
-        percent: 10
-        step: 10
-        start_step: 0
+    rollingUpdate:
       maxSurge: 25%
       maxUnavailable: 25%
     type: RollingUpdate
@@ -26,19 +22,26 @@ spec:
     spec:
       automountServiceAccountToken: true
       containers:
-        - name: frontend
+        - env:
+            - name: BACKEND_IP
+              valueFrom:
+                secretKeyRef:
+                  key: BACKEND_IP
+                  name: backend-ip
+                  optional: false
           image: europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest
           imagePullPolicy: Always
+          name: frontend
           ports:
             - containerPort: 80
               protocol: TCP
           resources:
             limits:
-              cpu: 350m
+              cpu: 250m
               ephemeral-storage: 1Gi
               memory: 512Mi
             requests:
-              cpu: 350m
+              cpu: 250m
               ephemeral-storage: 1Gi
               memory: 512Mi
           securityContext:
@@ -49,36 +52,28 @@ spec:
       securityContext:
         seccompProfile:
           type: RuntimeDefault
-      serviceAccount: cloud-sql-access
-      serviceAccountName: cloud-sql-access
       shareProcessNamespace: false
       tolerations:
         - effect: NoSchedule
           key: kubernetes.io/arch
           operator: Equal
           value: amd64
-      volumes:
-        - name: cloudsql-instance-credentials
-          secret:
-            secretName: cloud-sql-instance-credentials
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: frontend-prod
-  namespace: demo-namespace-prod
   annotations:
     cloud.google.com/neg: '{"ingress":true}'
+  finalizers:
+    - service.kubernetes.io/load-balancer-cleanup
+  name: frontend
+  namespace: demo-namespace
 spec:
   allocateLoadBalancerNodePorts: true
-  clusterIP: 34.118.227.3
   externalTrafficPolicy: Cluster
   internalTrafficPolicy: Cluster
-  ipFamilies:
-    - IPv4
-  ipFamilyPolicy: SingleStack
   ports:
-    - name: http
+    - nodePort: 31497
       port: 80
       protocol: TCP
       targetPort: 80
