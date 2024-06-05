@@ -27,8 +27,6 @@ async def get_users_from_db():
 
 @app.get("/users")
 async def get_users():
-    try:
         users = await get_users_from_db()
         return users
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+
