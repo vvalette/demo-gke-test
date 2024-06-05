@@ -17,21 +17,22 @@ gke:
   cluster: projects/incubation-ids/locations/europe-west1/clusters/demo-cluster-1
 
 ---
-apiVersion: deploy.cloud.google.com/v1
+apiVersion: networking.cloud.google.com/v1beta1
 kind: CanaryConfig
 metadata:
   name: angular-canary-config
-  description: Canary configuration for Angular app
+  namespace: default
 spec:
-  baseline:
-    numReplicas: 5
-  canary:
-    numReplicas: 2
-  analysis:
-    metric: request-duration
-    threshold: 0.1
-    interval: 1m
-    tolerance: 0.05
-    additionalMetrics:
-      - metric: error-rate
-        threshold: 0.01
+  backendService: your-backend-service-name
+  defaultService: your-default-service-name
+  numBaselineReplicas: 5
+  numCanaryReplicas: 2
+  baselinePercent: 80
+  name: your-canary-config-name
+  maxSurge: 20%
+  maxUnavailable: 0
+  interval: 60s
+  timeout: 60s
+  healthyThreshold: 3
+  unhealthyThreshold: 3
+  host: your-host
