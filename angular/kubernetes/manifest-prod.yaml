@@ -17,7 +17,17 @@ spec:
     rollingUpdate:
       maxSurge: 25%
       maxUnavailable: 25%
-  # other fields...
+  template:
+    metadata:
+      labels:
+        app: frontend
+        version: stable
+    spec:
+      containers:
+      - name: frontend
+        image: <image-name>
+        ports:
+        - containerPort: 80
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -38,29 +48,14 @@ spec:
     rollingUpdate:
       maxSurge: 25%
       maxUnavailable: 25%
-  # other fields...
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: frontend-prod
-  namespace: demo-namespace-prod
-  annotations:
-    cloud.google.com/neg: '{"ingress":true}'
-spec:
-  allocateLoadBalancerNodePorts: true
-  clusterIP: 34.118.227.3
-  externalTrafficPolicy: Cluster
-  internalTrafficPolicy: Cluster
-  ipFamilies:
-    - IPv4
-  ipFamilyPolicy: SingleStack
-  ports:
-    - name: http
-      port: 80
-      protocol: TCP
-      targetPort: 80
-  selector:
-    app: frontend
-  sessionAffinity: None
-  type: LoadBalancer
+  template:
+    metadata:
+      labels:
+        app: frontend
+        version: canary
+    spec:
+      containers:
+      - name: frontend
+        image: <image-name>
+        ports:
+        - containerPort: 80
