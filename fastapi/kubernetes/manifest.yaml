@@ -1,10 +1,6 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    autopilot.gke.io/resource-adjustment: >-
-      {"input":{"containers":[{"limits":{"cpu":"300m","memory":"400Mi"},"requests":{"cpu":"150m","memory":"200Mi"},"name":"backend"}]},"output":{"containers":[{"limits":{"cpu":"250m","ephemeral-storage":"1Gi","memory":"512Mi"},"requests":{"cpu":"250m","ephemeral-storage":"1Gi","memory":"512Mi"},"name":"backend"}]},"modified":true}
-    autopilot.gke.io/warden-version: 2.8.81
   labels:
     app: backend
   name: backend
