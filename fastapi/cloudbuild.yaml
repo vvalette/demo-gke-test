@@ -35,7 +35,6 @@ steps:
         --images=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/fastapi:latest=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/fastapi:latest \
         --project=incubation-ids || true
 
-
 options:
   logging: 'CLOUD_LOGGING_ONLY'
 serviceAccount: '816155259029-compute@developer.gserviceaccount.com'
