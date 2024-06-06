@@ -7,7 +7,7 @@ metadata:
     app: frontend
     version: stable
 spec:
-  replicas: 9
+  replicas: 1
   selector:
     matchLabels:
       app: frontend
@@ -59,3 +59,19 @@ spec:
         image: europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest
         ports:
         - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-prod-stable
+  namespace: demo-namespace-prod
+spec:
+  selector:
+    app: frontend
+    version: stable
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+  type: LoadBalancer
+
