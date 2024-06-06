@@ -5,6 +5,11 @@ profiles:
     manifests:
       rawYaml:
         - kubernetes/manifest-prod.yaml
+    verify:
+      - container:
+          image: europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest
+          name: frontend-prod-stable
+        name: frontend-prod-stable
   - name: dev
     manifests:
       rawYaml: 
