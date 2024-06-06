@@ -21,7 +21,8 @@ serialPipeline:
                 deployment: "frontend-prod-stable"
           canaryDeployment:
             percentages: [25, 50, 75]
-            verify: false
+            verify: true
+
 ---
 apiVersion: deploy.cloud.google.com/v1
 kind: Target
