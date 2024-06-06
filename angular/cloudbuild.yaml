@@ -33,7 +33,7 @@ steps:
         --region=europe-west9 \
         --source=angular/ \
         --images=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest \
-        --project=incubation-ids 
+        --project=incubation-ids || true
 
 # Step 5: Promote the release
 - name: 'gcr.io/cloud-builders/gcloud'
@@ -44,7 +44,7 @@ steps:
       gcloud deploy releases promote release-angular-$BUILD_ID \
         --delivery-pipeline=angular-delivery-pipeline \
         --region=europe-west9 \
-        --project=incubation-ids 
+        --project=incubation-ids || true
 
 options:
   logging: 'CLOUD_LOGGING_ONLY'
