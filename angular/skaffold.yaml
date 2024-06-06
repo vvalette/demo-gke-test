@@ -5,7 +5,7 @@ profiles:
     manifests:
       rawYaml:
         - kubernetes/manifest-prod.yaml
-  - name: staging
+  - name: dev
     manifests:
       rawYaml: 
         - kubernetes/manifest-dev.yaml
