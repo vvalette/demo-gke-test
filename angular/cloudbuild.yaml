@@ -46,6 +46,7 @@ steps:
         --region=europe-west9 \
         --project=incubation-ids || true
 
+
 options:
   logging: 'CLOUD_LOGGING_ONLY'
 serviceAccount: '816155259029-compute@developer.gserviceaccount.com'
