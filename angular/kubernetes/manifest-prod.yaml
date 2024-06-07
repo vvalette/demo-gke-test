@@ -8,7 +8,7 @@ metadata:
     app: frontend
     version: stable
   annotations:
-    autopilot.gke.io/warden-version: 2.8.81
+    autopilot.gke.io/warden-version: "2.8.81"
 spec:
   replicas: 3
   selector:
@@ -64,6 +64,7 @@ spec:
           key: kubernetes.io/arch
           operator: Equal
           value: amd64
+
 ---
 # Deployment for the canary version
 apiVersion: apps/v1
@@ -129,6 +130,7 @@ spec:
           key: kubernetes.io/arch
           operator: Equal
           value: amd64
+
 ---
 # Ingress to manage traffic routing
 apiVersion: networking.k8s.io/v1
