@@ -1,76 +1,50 @@
 steps:
-  # Step 1: Build the Docker image
-  - name: 'gcr.io/cloud-builders/docker'
-    args:
-      - 'build'
-      - '-t'
-      - 'europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest'
-      - 'angular/'
+# Step 1: Build the Docker image
+- name: 'gcr.io/cloud-builders/docker'
+  args: 
+    - 'build'
+    - '-t'
+    - 'europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest'
+    - 'angular/'
 
-  # Step 2: Push the Docker image
-  - name: 'gcr.io/cloud-builders/docker'
-    args:
-      - 'push'
-      - 'europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest'
+# Step 2: Push the Docker image
+- name: 'gcr.io/cloud-builders/docker'
+  args: 
+    - 'push'
+    - 'europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest'
 
-  # Step 3: Apply Cloud Deploy configuration
-  - name: 'gcr.io/cloud-builders/gcloud'
-    args:
-      - 'deploy'
-      - 'apply'
-      - '--file=angular/clouddeploy.yaml'
-      - '--region=europe-west9'
-      - '--project=incubation-ids'
+# Step 3: Apply Cloud Deploy configuration
+- name: 'gcr.io/cloud-builders/gcloud'
+  args:
+    - 'deploy'
+    - 'apply'
+    - '--file=angular/clouddeploy.yaml'
+    - '--region=europe-west9'
+    - '--project=incubation-ids'
 
-  # Step 4: Create a new release for dev
-  - name: 'gcr.io/cloud-builders/gcloud'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        gcloud deploy releases create release-angular-dev-$BUILD_ID \
-          --delivery-pipeline=angular-delivery-pipeline \
-          --region=europe-west9 \
-          --source=angular/ \
-          --images=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest \
-          --project=incubation-ids || true
+# Step 4: Create a new release
+- name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: 'bash'
+  args:
+    - '-c'
+    - |
+      gcloud deploy releases create release-angular-$BUILD_ID \
+        --delivery-pipeline=angular-delivery-pipeline \
+        --region=europe-west9 \
+        --source=angular/ \
+        --images=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest \
+        --project=incubation-ids || true
 
-  # Step 5: Promote the dev release
-  - name: 'gcr.io/cloud-builders/gcloud'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        gcloud deploy releases promote release-angular-dev-$BUILD_ID \
-          --delivery-pipeline=angular-delivery-pipeline \
-          --region=europe-west9 \
-          --to-target=angular-deployment \
-          --project=incubation-ids || true
-
-  # Step 6: Create a new release for prod
-  - name: 'gcr.io/cloud-builders/gcloud'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        gcloud deploy releases create release-angular-prod-$BUILD_ID \
-          --delivery-pipeline=angular-delivery-pipeline \
-          --region=europe-west9 \
-          --source=angular/ \
-          --images=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest=europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest \
-          --project=incubation-ids || true
-
-  # Step 7: Promote the prod release
-  - name: 'gcr.io/cloud-builders/gcloud'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        gcloud deploy releases promote release-angular-prod-$BUILD_ID \
-          --delivery-pipeline=angular-delivery-pipeline \
-          --region=europe-west9 \
-          --to-target=angular-deployment-prod \
-          --project=incubation-ids || true
+# Step 5: Promote the release
+- name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: 'bash'
+  args:
+    - '-c'
+    - |
+      gcloud deploy releases promote release-angular-$BUILD_ID \
+        --delivery-pipeline=angular-delivery-pipeline \
+        --region=europe-west9 \
+        --project=incubation-ids || true
 
 options:
   logging: 'CLOUD_LOGGING_ONLY'
