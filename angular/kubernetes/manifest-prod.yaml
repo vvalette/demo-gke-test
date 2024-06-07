@@ -1,3 +1,4 @@
+# Deployment for the stable version
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -64,6 +65,72 @@ spec:
           operator: Equal
           value: amd64
 ---
+# Deployment for the canary version
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-prod-stable-canary
+  namespace: demo-namespace-prod
+  labels:
+    app: frontend
+    version: canary
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+      version: canary
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  template:
+    metadata:
+      labels:
+        app: frontend
+        version: canary
+    spec:
+      automountServiceAccountToken: true
+      containers:
+      - name: frontend
+        image: europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+          protocol: TCP
+        env:
+          - name: BACKEND_IP
+            valueFrom:
+              secretKeyRef:
+                key: BACKEND_IP
+                name: backend-ip
+                optional: false
+        resources:
+          limits:
+            cpu: 250m
+            ephemeral-storage: 1Gi
+            memory: 512Mi
+          requests:
+            cpu: 250m
+            ephemeral-storage: 1Gi
+            memory: 512Mi
+        securityContext:
+          capabilities:
+            drop:
+              - NET_RAW
+      enableServiceLinks: true
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      shareProcessNamespace: false
+      tolerations:
+        - effect: NoSchedule
+          key: kubernetes.io/arch
+          operator: Equal
+          value: amd64
+---
+# Service for the stable version
 apiVersion: v1
 kind: Service
 metadata:
@@ -71,8 +138,6 @@ metadata:
   namespace: demo-namespace-prod
   annotations:
     cloud.google.com/neg: '{"ingress":true}'
-  finalizers:
-    - service.kubernetes.io/load-balancer-cleanup
 spec:
   selector:
     app: frontend
@@ -89,3 +154,58 @@ spec:
   ipFamilies:
     - IPv4
   ipFamilyPolicy: SingleStack
+---
+# Service for the canary version
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-prod-stable-canary
+  namespace: demo-namespace-prod
+  annotations:
+    cloud.google.com/neg: '{"ingress":true}'
+spec:
+  selector:
+    app: frontend
+    version: canary
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+  type: LoadBalancer
+  allocateLoadBalancerNodePorts: true
+  externalTrafficPolicy: Cluster
+  internalTrafficPolicy: Cluster
+  sessionAffinity: None
+  ipFamilies:
+    - IPv4
+  ipFamilyPolicy: SingleStack
+---
+# Ingress to manage traffic routing
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: frontend-ingress
+  namespace: demo-namespace-prod
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/canary: "true"
+    nginx.ingress.kubernetes.io/canary-weight: "10"
+spec:
+  rules:
+  - host: yourdomain.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend-prod-stable
+            port:
+              number: 80
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend-prod-stable-canary
+            port:
+              number: 80
