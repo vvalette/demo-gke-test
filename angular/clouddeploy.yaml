@@ -1,45 +1,167 @@
-#clouddeploy.yaml 
-apiVersion: deploy.cloud.google.com/v1
-kind: DeliveryPipeline
+# Deployment for the stable version
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: angular-delivery-pipeline
-  description: main application pipeline
-serialPipeline:
-  stages:
-    - targetId: angular-deployment
-      profiles: 
-        - dev
-    - targetId: angular-deployment-prod
-      profiles: 
-        - prod
-      strategy:
-        canary:
-          runtimeConfig:
-            kubernetes:
-              serviceNetworking:
-                service: "frontend-prod-stable"
-                deployment: "frontend-prod-stable"
-          canaryDeployment:
-            percentages: [50]
-            verify: false
-
+  name: frontend-prod-stable
+  namespace: demo-namespace-prod
+  labels:
+    app: frontend
+    version: stable
+  annotations:
+    autopilot.gke.io/warden-version: 2.8.81
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: frontend
+      version: stable
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  template:
+    metadata:
+      labels:
+        app: frontend
+        version: stable
+    spec:
+      automountServiceAccountToken: true
+      containers:
+      - name: frontend
+        image: europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+          protocol: TCP
+        env:
+          - name: BACKEND_IP
+            valueFrom:
+              secretKeyRef:
+                key: BACKEND_IP
+                name: backend-ip
+                optional: false
+        resources:
+          limits:
+            cpu: 250m
+            ephemeral-storage: 1Gi
+            memory: 512Mi
+          requests:
+            cpu: 250m
+            ephemeral-storage: 1Gi
+            memory: 512Mi
+        securityContext:
+          capabilities:
+            drop:
+              - NET_RAW
+      enableServiceLinks: true
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      shareProcessNamespace: false
+      tolerations:
+        - effect: NoSchedule
+          key: kubernetes.io/arch
+          operator: Equal
+          value: amd64
 ---
-apiVersion: deploy.cloud.google.com/v1
-kind: Target
+# Deployment for the canary version
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: angular-deployment
-description: development namespace
-gke:
-  cluster: projects/incubation-ids/locations/europe-west1/clusters/demo-cluster-1
+  name: frontend-prod-stable-canary
+  namespace: demo-namespace-prod
+  labels:
+    app: frontend
+    version: canary
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+      version: canary
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  template:
+    metadata:
+      labels:
+        app: frontend
+        version: canary
+    spec:
+      automountServiceAccountToken: true
+      containers:
+      - name: frontend
+        image: europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+          protocol: TCP
+        env:
+          - name: BACKEND_IP
+            valueFrom:
+              secretKeyRef:
+                key: BACKEND_IP
+                name: backend-ip
+                optional: false
+        resources:
+          limits:
+            cpu: 250m
+            ephemeral-storage: 1Gi
+            memory: 512Mi
+          requests:
+            cpu: 250m
+            ephemeral-storage: 1Gi
+            memory: 512Mi
+        securityContext:
+          capabilities:
+            drop:
+              - NET_RAW
+      enableServiceLinks: true
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      shareProcessNamespace: false
+      tolerations:
+        - effect: NoSchedule
+          key: kubernetes.io/arch
+          operator: Equal
+          value: amd64
 ---
-apiVersion: deploy.cloud.google.com/v1
-kind: Target
+# Ingress to manage traffic routing
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
-  name: angular-deployment-prod
-description: production
-requireApproval: true
-
-gke:
-  cluster: projects/incubation-ids/locations/europe-west1/clusters/demo-cluster-1
-
-       
+  name: frontend-ingress
+  namespace: demo-namespace-prod
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/canary: "true"
+    nginx.ingress.kubernetes.io/canary-weight: "50"
+    nginx.ingress.kubernetes.io/set-misc: "step=canary"
+spec:
+  rules:
+  - host: incubation-ids.page.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend-prod-stable-canary
+            port:
+              number: 80
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend-prod-stable
+            port:
+              number: 80
+  backend:
+    service:
+      name: frontend-prod-stable
+      port:
+        number: 80
