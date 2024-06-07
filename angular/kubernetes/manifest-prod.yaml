@@ -32,28 +32,14 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
-    cloud.google.com/neg: '{"ingress":true}'
-  finalizers:
-    - service.kubernetes.io/load-balancer-cleanup
-  name: frontend
-  namespace: demo-namespace
+  name: frontend-prod-stable
+  namespace: demo-namespace-prod
 spec:
-  allocateLoadBalancerNodePorts: true
-  clusterIP: 34.118.237.37
-  clusterIPs:
-    - 34.118.237.37
-  externalTrafficPolicy: Cluster
-  internalTrafficPolicy: Cluster
-  ipFamilies:
-    - IPv4
-  ipFamilyPolicy: SingleStack
-  ports:
-    - nodePort: 31497
-      port: 80
-      protocol: TCP
-      targetPort: 80
   selector:
     app: frontend
-  sessionAffinity: None
+    version: stable
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
   type: LoadBalancer
