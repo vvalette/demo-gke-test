@@ -130,56 +130,6 @@ spec:
           operator: Equal
           value: amd64
 ---
-# Service for the stable version
-apiVersion: v1
-kind: Service
-metadata:
-  name: frontend-prod-stable
-  namespace: demo-namespace-prod
-  annotations:
-    cloud.google.com/neg: '{"ingress":true}'
-spec:
-  selector:
-    app: frontend
-    version: stable
-  ports:
-  - port: 80
-    targetPort: 80
-    protocol: TCP
-  type: LoadBalancer
-  allocateLoadBalancerNodePorts: true
-  externalTrafficPolicy: Cluster
-  internalTrafficPolicy: Cluster
-  sessionAffinity: None
-  ipFamilies:
-    - IPv4
-  ipFamilyPolicy: SingleStack
----
-# Service for the canary version
-apiVersion: v1
-kind: Service
-metadata:
-  name: frontend-prod-stable-canary
-  namespace: demo-namespace-prod
-  annotations:
-    cloud.google.com/neg: '{"ingress":true}'
-spec:
-  selector:
-    app: frontend
-    version: canary
-  ports:
-  - port: 80
-    targetPort: 80
-    protocol: TCP
-  type: LoadBalancer
-  allocateLoadBalancerNodePorts: true
-  externalTrafficPolicy: Cluster
-  internalTrafficPolicy: Cluster
-  sessionAffinity: None
-  ipFamilies:
-    - IPv4
-  ipFamilyPolicy: SingleStack
----
 # Ingress to manage traffic routing
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -189,19 +139,13 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/canary: "true"
-    nginx.ingress.kubernetes.io/canary-weight: "10"
+    nginx.ingress.kubernetes.io/canary-weight: "50"
+    nginx.ingress.kubernetes.io/set-misc: "step=canary"
 spec:
   rules:
-  - host: yourdomain.com
+  - host: incubation-ids.page.example.com
     http:
       paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: frontend-prod-stable
-            port:
-              number: 80
       - path: /
         pathType: Prefix
         backend:
@@ -209,3 +153,15 @@ spec:
             name: frontend-prod-stable-canary
             port:
               number: 80
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend-prod-stable
+            port:
+              number: 80
+  backend:
+    service:
+      name: frontend-prod-stable
+      port:
+        number: 80
