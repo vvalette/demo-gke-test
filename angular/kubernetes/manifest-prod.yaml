@@ -1,4 +1,4 @@
-# Déploiement pour la version stable
+# Deployment for the stable version
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -66,7 +66,7 @@ spec:
           value: amd64
 
 ---
-# Déploiement pour la version canary
+# Deployment for the canary version
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -132,7 +132,7 @@ spec:
           value: amd64
 
 ---
-# Service pour la version stable
+# Service for the stable version
 apiVersion: v1
 kind: Service
 metadata:
@@ -149,7 +149,7 @@ spec:
   type: LoadBalancer
 
 ---
-# Service pour la version canary
+# Service for the canary version
 apiVersion: v1
 kind: Service
 metadata:
@@ -166,7 +166,7 @@ spec:
   type: LoadBalancer
 
 ---
-# Ingress pour gérer le routage du trafic
+# Ingress to manage traffic routing
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
