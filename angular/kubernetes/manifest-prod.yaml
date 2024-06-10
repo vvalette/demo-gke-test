@@ -132,6 +132,40 @@ spec:
           value: amd64
 
 ---
+# Service for the stable version
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-prod-stable
+  namespace: demo-namespace-prod
+spec:
+  selector:
+    app: frontend
+    version: stable
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+  type: LoadBalancer
+
+---
+# Service for the canary version
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-prod-stable-canary
+  namespace: demo-namespace-prod
+spec:
+  selector:
+    app: frontend
+    version: canary
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+  type: LoadBalancer
+
+---
 # Ingress to manage traffic routing
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -162,8 +196,3 @@ spec:
             name: frontend-prod-stable
             port:
               number: 80
-  backend:
-    service:
-      name: frontend-prod-stable
-      port:
-        number: 80
