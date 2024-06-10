@@ -70,7 +70,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: frontend-prod-stable-canary
+  name: frontend-prod-canary
   namespace: demo-namespace-prod
   labels:
     app: frontend
@@ -153,7 +153,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: frontend-prod-stable-canary
+  name: frontend-prod-canary
   namespace: demo-namespace-prod
 spec:
   selector:
@@ -176,16 +176,16 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/canary: "true"
     nginx.ingress.kubernetes.io/canary-weight: "50"
-    nginx.ingress.kubernetes.io/set-misc: "step=canary"
 spec:
   rules:
-  - http:
+  - host: incubation-ids.page.example.com
+    http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: frontend-prod-stable-canary
+            name: frontend-prod-canary
             port:
               number: 80
       - path: /
@@ -195,3 +195,8 @@ spec:
             name: frontend-prod-stable
             port:
               number: 80
+  defaultBackend:
+    service:
+      name: frontend-prod-stable
+      port:
+        number: 80
