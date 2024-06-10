@@ -179,8 +179,7 @@ metadata:
     nginx.ingress.kubernetes.io/set-misc: "step=canary"
 spec:
   rules:
-  - host: incubation-ids.page.example.com
-    http:
+  - http:
       paths:
       - path: /
         pathType: Prefix
