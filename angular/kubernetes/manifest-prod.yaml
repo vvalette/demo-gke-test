@@ -178,7 +178,7 @@ metadata:
     nginx.ingress.kubernetes.io/canary-weight: "50"
 spec:
   rules:
-  - host: incubation-ids.page.example.com
+  - host: gke-demo-cluster-1-99efbf70-dns
     http:
       paths:
       - path: /
