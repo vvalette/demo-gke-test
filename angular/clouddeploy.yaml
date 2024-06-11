@@ -1,4 +1,3 @@
-# clouddeploy.yaml
 apiVersion: deploy.cloud.google.com/v1
 kind: DeliveryPipeline
 metadata:
@@ -20,8 +19,8 @@ serialPipeline:
                 service: "frontend-stable"  # Reference the stable service
                 deployment: "frontend-prod-stable"
           canaryDeployment:
-            percentages: [50]  # Adjust this percentage as needed
-            verify: false  # Set to 'true' if you want to add automated verification steps
+            percentages: [50]
+            verify: false
 ---
 apiVersion: deploy.cloud.google.com/v1
 kind: Target
@@ -36,7 +35,6 @@ kind: Target
 metadata:
   name: angular-deployment-prod
 description: Production
-requireApproval: true  # Set to 'true' if you want to require manual approval before deploying to production
+requireApproval: true
 gke:
   cluster: projects/incubation-ids/locations/europe-west1/clusters/demo-cluster-1
-
