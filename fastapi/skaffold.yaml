@@ -1,7 +1,11 @@
-apiVersion: skaffold/v2beta16
+apiVersion: skaffold/v4beta7
 kind: Config
-deploy:
-  kubectl:
-  #name of the kubernetes yaml file
+profiles:
+  - name: prod
     manifests:
-    - kubernetes/manifest.yaml
+      rawYaml:
+        - kubernetes/manifest-prod.yaml
+  - name: dev
+    manifests:
+      rawYaml: 
+        - kubernetes/manifest-dev.yaml

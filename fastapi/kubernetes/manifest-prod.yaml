@@ -1,0 +1,111 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-prod-stable
+  namespace: demo-namespace-prod
+  labels:
+    app: backend
+    version: stable
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+      version: stable
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  template:
+    metadata:
+      labels:
+        app: backend
+        version: stable
+    spec:
+      automountServiceAccountToken: true
+      containers:
+        - name: backend
+          image: europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/fastapi:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 350m
+              ephemeral-storage: 1Gi
+              memory: 512Mi
+            requests:
+              cpu: 350m
+              ephemeral-storage: 1Gi
+              memory: 512Mi
+          securityContext:
+            capabilities:
+              drop:
+                - NET_RAW
+        - name: cloud-sql-proxy
+          image: gcr.io/cloudsql-docker/gce-proxy:1.31.1
+          command: ["/cloud_sql_proxy"]
+          args:
+            - "--dir=/cloudsql"
+            - "--instances=incubation-ids:europe-west9:my-sql-instance=tcp:5432"
+            - "--credential_file=/secrets/cloudsql/credentials.json"
+          volumeMounts:
+            - name: cloudsql-instance-credentials
+              mountPath: /secrets/cloudsql
+              readOnly: true
+          securityContext:
+            capabilities:
+              drop:
+                - NET_RAW
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "300m"
+            limits:
+              memory: "512Mi"
+              cpu: "400m"
+      enableServiceLinks: true
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      serviceAccount: cloud-sql-access
+      serviceAccountName: cloud-sql-access
+      shareProcessNamespace: false
+      tolerations:
+        - effect: NoSchedule
+          key: kubernetes.io/arch
+          operator: Equal
+          value: amd64
+      volumes:
+        - name: cloudsql-instance-credentials
+          secret:
+            secretName: cloud-sql-instance-credentials
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    cloud.google.com/neg: '{"ingress":true}'
+  finalizers:
+    - service.kubernetes.io/load-balancer-cleanup
+  name: backend-prod-stable
+  namespace: demo-namespace-prod
+spec:
+  allocateLoadBalancerNodePorts: true
+  externalTrafficPolicy: Cluster
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+    - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: 80
+  selector:
+    app: backend
+    version: stable
+  sessionAffinity: None
+  type: LoadBalancer

@@ -13,15 +13,6 @@ steps:
     - 'push'
     - 'europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/fastapi:latest'
 
-# Step 3: Apply Cloud Deploy configuration
-- name: 'gcr.io/cloud-builders/gcloud'
-  args:
-    - 'deploy'
-    - 'apply'
-    - '--file=fastapi/clouddeploy.yaml'
-    - '--region=europe-west9'
-    - '--project=incubation-ids'
-
 # Step 4: Generate a unique release name
 - name: 'gcr.io/cloud-builders/gcloud'
   entrypoint: 'bash'
