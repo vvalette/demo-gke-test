@@ -13,16 +13,7 @@ steps:
     - 'push'
     - 'europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest'
 
-# Step 3: Apply Cloud Deploy configuration
-- name: 'gcr.io/cloud-builders/gcloud'
-  args:
-    - 'deploy'
-    - 'apply'
-    - '--file=angular/clouddeploy.yaml'
-    - '--region=europe-west9'
-    - '--project=incubation-ids'
-
-# Step 4: Create a new release
+# Step 3: Create a new release
 - name: 'gcr.io/cloud-builders/gcloud'
   entrypoint: 'bash'
   args:
