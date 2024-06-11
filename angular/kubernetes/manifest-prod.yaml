@@ -15,10 +15,16 @@ spec:
       app: frontend
       version: stable
   strategy:
-    type: RollingUpdate
+    type: Canary  # Change deployment strategy to Canary
     rollingUpdate:
-      maxSurge: 25%
-      maxUnavailable: 25%
+      maxSurge: 1  # Adjust max surge for canary update
+      maxUnavailable: 0
+    canary:
+      canaryService: frontend-prod-canary  # Specify the canary service
+      stableService: frontend-prod-stable  # Specify the stable service
+      trafficPercentages:
+        frontend-prod-stable: 50  # Adjust traffic distribution between stable and canary
+        frontend-prod-canary: 50
   template:
     metadata:
       labels:
@@ -63,6 +69,7 @@ spec:
           key: kubernetes.io/arch
           operator: Equal
           value: amd64
+
 ---
 apiVersion: v1
 kind: Service
@@ -89,6 +96,7 @@ spec:
   ipFamilies:
     - IPv4
   ipFamilyPolicy: SingleStack
+
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -109,8 +117,8 @@ spec:
   strategy:
     type: RollingUpdate
     rollingUpdate:
-      maxSurge: 25%
-      maxUnavailable: 25%
+      maxSurge: 1  # Adjust max surge for canary update
+      maxUnavailable: 0
   template:
     metadata:
       labels:
@@ -155,6 +163,7 @@ spec:
           key: kubernetes.io/arch
           operator: Equal
           value: amd64
+
 ---
 apiVersion: v1
 kind: Service
