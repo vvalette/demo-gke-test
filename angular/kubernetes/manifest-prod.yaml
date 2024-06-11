@@ -36,7 +36,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: frontend
+  name: frontend-stable
   namespace: demo-namespace-prod
   labels:
     app: frontend
@@ -46,6 +46,7 @@ spec:
     name: http
   selector:
     app: frontend
+    version: stable
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -96,71 +97,3 @@ spec:
   selector:
     app: frontend
     version: canary
----
-# clouddeploy.yaml
-apiVersion: deploy.cloud.google.com/v1
-kind: DeliveryPipeline
-metadata:
-  name: angular-delivery-pipeline
-  description: main application pipeline
-serialPipeline:
-  stages:
-    - targetId: angular-deployment
-      profiles: 
-        - dev
-    - targetId: angular-deployment-prod
-      profiles: 
-        - prod
-      strategy:
-        canary:
-          runtimeConfig:
-            kubernetes:
-              serviceNetworking:
-                service: "frontend"
-                deployment: "frontend-prod-stable"
-          canaryDeployment:
-            percentages: [50]
-            verify: false
----
-apiVersion: deploy.cloud.google.com/v1
-kind: Target
-metadata:
-  name: angular-deployment
-description: development namespace
-gke:
-  cluster: projects/incubation-ids/locations/europe-west1/clusters/demo-cluster-1
----
-apiVersion: deploy.cloud.google.com/v1
-kind: Target
-metadata:
-  name: angular-deployment-prod
-description: production
-requireApproval: true
-gke:
-  cluster: projects/incubation-ids/locations/europe-west1/clusters/demo-cluster-1
----
-apiVersion: networking.istio.io/v1alpha3
-kind: VirtualService
-metadata:
-  name: frontend-vs
-  namespace: demo-namespace-prod
-spec:
-  hosts:
-  - frontend.demo-namespace-prod.svc.cluster.local
-  http:
-  - match:
-      - uri:
-          prefix: /
-    route:
-    - destination:
-        host: frontend.demo-namespace-prod.svc.cluster.local
-        subset: canary
-        port:
-          number: 80
-      weight: 50
-    - destination:
-        host: frontend.demo-namespace-prod.svc.cluster.local
-        subset: stable
-        port:
-          number: 80
-      weight: 5

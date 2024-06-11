@@ -3,7 +3,7 @@ apiVersion: deploy.cloud.google.com/v1
 kind: DeliveryPipeline
 metadata:
   name: angular-delivery-pipeline
-  description: main application pipeline
+  description: Main application pipeline
 serialPipeline:
   stages:
     - targetId: angular-deployment
@@ -17,8 +17,26 @@ serialPipeline:
           runtimeConfig:
             kubernetes:
               serviceNetworking:
-                service: "frontend"
+                service: "frontend-stable"  # Reference the stable service
                 deployment: "frontend-prod-stable"
           canaryDeployment:
-            percentages: [50]
-            verify: false
+            percentages: [50]  # Adjust this percentage as needed
+            verify: false  # Set to 'true' if you want to add automated verification steps
+---
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+metadata:
+  name: angular-deployment
+description: Development namespace
+gke:
+  cluster: projects/incubation-ids/locations/europe-west1/clusters/demo-cluster-1
+---
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+metadata:
+  name: angular-deployment-prod
+description: Production
+requireApproval: true  # Set to 'true' if you want to require manual approval before deploying to production
+gke:
+  cluster: projects/incubation-ids/locations/europe-west1/clusters/demo-cluster-1
+
