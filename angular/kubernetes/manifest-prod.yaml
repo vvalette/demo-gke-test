@@ -157,32 +157,4 @@ spec:
       name: http
       protocol: HTTP
     hosts:
-    - frontend.demo-namespace-prod.svc.cluster.local 
-
-
----
-apiVersion: networking.istio.io/v1alpha3
-kind: VirtualService
-metadata:
-  name: frontend-vs
-  namespace: demo-namespace-prod
-spec:
-  hosts:
-  - frontend.demo-namespace-prod.svc.cluster.local
-  http:
-  - match:
-      - uri:
-          prefix: /
-    route:
-    - destination:
-        host: frontend.demo-namespace-prod.svc.cluster.local
-        subset: canary
-        port:
-          number: 80
-      weight: 50
-    - destination:
-        host: frontend.demo-namespace-prod.svc.cluster.local
-        subset: stable
-        port:
-          number: 80
-      weight: 50
+    - frontend.demo-namespace-prod.svc.cluster.local
