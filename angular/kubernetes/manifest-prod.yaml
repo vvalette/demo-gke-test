@@ -46,3 +46,121 @@ spec:
     name: http
   selector:
     app: frontend
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-prod-canary
+  namespace: demo-namespace-prod
+  labels:
+    app: frontend
+    version: canary
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+      version: canary
+  template:
+    metadata:
+      labels:
+        app: frontend
+        version: canary
+    spec:
+      containers:
+      - name: frontend
+        image: europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest
+        ports:
+        - containerPort: 80
+        env:
+        - name: BACKEND_IP
+          valueFrom:
+            secretKeyRef:
+              key: BACKEND_IP
+              name: backend-ip
+              optional: false
+        - name: ENV
+          value: "PROD"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-canary
+  namespace: demo-namespace-prod
+  labels:
+    app: frontend
+spec:
+  ports:
+  - port: 80
+    name: http
+  selector:
+    app: frontend
+    version: canary
+---
+# clouddeploy.yaml
+apiVersion: deploy.cloud.google.com/v1
+kind: DeliveryPipeline
+metadata:
+  name: angular-delivery-pipeline
+  description: main application pipeline
+serialPipeline:
+  stages:
+    - targetId: angular-deployment
+      profiles: 
+        - dev
+    - targetId: angular-deployment-prod
+      profiles: 
+        - prod
+      strategy:
+        canary:
+          runtimeConfig:
+            kubernetes:
+              serviceNetworking:
+                service: "frontend"
+                deployment: "frontend-prod-stable"
+          canaryDeployment:
+            percentages: [50]
+            verify: false
+---
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+metadata:
+  name: angular-deployment
+description: development namespace
+gke:
+  cluster: projects/incubation-ids/locations/europe-west1/clusters/demo-cluster-1
+---
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+metadata:
+  name: angular-deployment-prod
+description: production
+requireApproval: true
+gke:
+  cluster: projects/incubation-ids/locations/europe-west1/clusters/demo-cluster-1
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: frontend-vs
+  namespace: demo-namespace-prod
+spec:
+  hosts:
+  - frontend.demo-namespace-prod.svc.cluster.local
+  http:
+  - match:
+      - uri:
+          prefix: /
+    route:
+    - destination:
+        host: frontend.demo-namespace-prod.svc.cluster.local
+        subset: canary
+        port:
+          number: 80
+      weight: 50
+    - destination:
+        host: frontend.demo-namespace-prod.svc.cluster.local
+        subset: stable
+        port:
+          number: 80
+      weight: 5
