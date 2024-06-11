@@ -1,7 +1,7 @@
 #!/bin/sh
 
 echo "BACKEND_IP=$BACKEND_IP"
-current_date=$(date +'%Y-%m-%d %H:%M:%S')
+current_date=$(TZ="Europe/Paris" date +'%Y-%m-%d %H:%M:%S')
 
 # Replace backend IP in the environment.prod.ts file
 sed -i "s|<backend-service-ip>|$BACKEND_IP|g" /usr/share/nginx/html/main*.js
