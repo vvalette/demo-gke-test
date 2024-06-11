@@ -12,11 +12,6 @@ spec:
     matchLabels:
       app: frontend
       version: stable
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 25%
-      maxUnavailable: 25%
   template:
     metadata:
       labels:
@@ -38,27 +33,54 @@ spec:
         - name: ENV
           value: "PROD"
 ---
-apiVersion: v1
-kind: Service
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  annotations:
-    cloud.google.com/neg: '{"ingress":true}'
-  finalizers:
-    - service.kubernetes.io/load-balancer-cleanup
-  name: frontend-prod-stable
+  name: frontend-prod-canary
+  namespace: demo-namespace-prod
+  labels:
+    app: frontend
+    version: canary
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+      version: canary
+  template:
+    metadata:
+      labels:
+        app: frontend
+        version: canary
+    spec:
+      containers:
+      - name: frontend
+        image: europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest
+        ports:
+        - containerPort: 80
+        env:
+        - name: BACKEND_IP
+          valueFrom:
+            secretKeyRef:
+              key: BACKEND_IP
+              name: backend-ip
+              optional: false
+        - name: ENV
+          value: "PROD"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: frontend
   namespace: demo-namespace-prod
 spec:
-  allocateLoadBalancerNodePorts: true
-  externalTrafficPolicy: Cluster
-  internalTrafficPolicy: Cluster
-  ipFamilies:
-    - IPv4
-  ipFamilyPolicy: SingleStack
-  ports:
-    - port: 80
-      protocol: TCP
-      targetPort: 80
-  selector:
-    app: frontend
-  sessionAffinity: None
-  type: LoadBalancer
+  hosts:
+  - your-application-domain.com
+  http:
+  - route:
+    - destination:
+        host: frontend-prod-stable.demo-namespace-prod.svc.cluster.local
+        weight: 50
+    - destination:
+        host: frontend-prod-canary.demo-namespace-prod.svc.cluster.local
+        weight: 50

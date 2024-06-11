@@ -1,4 +1,4 @@
-#clouddeploy.yaml
+# clouddeploy.yaml
 apiVersion: deploy.cloud.google.com/v1
 kind: DeliveryPipeline
 metadata:
@@ -17,12 +17,11 @@ serialPipeline:
           runtimeConfig:
             kubernetes:
               serviceNetworking:
-                service: "frontend-prod-stable"
-                deployment: "frontend-prod-stable"
+                service: "frontend"
+                deployment: "frontend-prod-canary"
           canaryDeployment:
             percentages: [50]
             verify: false
-
 ---
 apiVersion: deploy.cloud.google.com/v1
 kind: Target
@@ -38,8 +37,5 @@ metadata:
   name: angular-deployment-prod
 description: production
 requireApproval: true
-
 gke:
   cluster: projects/incubation-ids/locations/europe-west1/clusters/demo-cluster-1
-
-       
