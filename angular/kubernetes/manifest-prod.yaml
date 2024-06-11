@@ -156,8 +156,7 @@ spec:
       number: 80
       name: http
       protocol: HTTP
-    hosts:
-    - "*"  # Change this to your domain if you have one
+
 
 ---
 apiVersion: networking.istio.io/v1alpha3
@@ -166,8 +165,7 @@ metadata:
   name: frontend-ingress
   namespace: demo-namespace-prod
 spec:
-  hosts:
-  - "*"  # Change this to your domain if you have one
+
   gateways:
   - frontend-gateway
   http:
