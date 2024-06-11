@@ -35,6 +35,8 @@ spec:
               key: BACKEND_IP
               name: backend-ip
               optional: false
+        - name: ENV
+          value: "PROD"
 ---
 apiVersion: v1
 kind: Service

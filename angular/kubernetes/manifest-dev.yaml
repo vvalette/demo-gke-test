@@ -31,6 +31,8 @@ spec:
                   key: BACKEND_IP
                   name: backend-ip
                   optional: false
+            - name: ENV
+              value: DEV
           image: europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest
           imagePullPolicy: Always
           name: frontend
