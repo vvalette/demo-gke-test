@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { BackendService } from './backend';
-import { Observable } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-root',
@@ -10,21 +9,13 @@ import { HttpClient } from '@angular/common/http';
 })
 export class AppComponent implements OnInit {
   users: any[] = [];
-  commitDate: string | null = null;
+  build_date = environment.buildTime;
 
-  constructor(private backendService: BackendService, private http: HttpClient) {}
-
-  getCommitDate(): Observable<string> {
-    return this.http.get('assets/commit-date.txt', { responseType: 'text' });
-  }
+  constructor(private backendService: BackendService) { }
 
   ngOnInit(): void {
     this.backendService.getUsers().subscribe(users => {
       this.users = users;
-    });
-
-    this.getCommitDate().subscribe(date => {
-      this.commitDate = date;
     });
   }
 }
