@@ -6,7 +6,9 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "postbuild": "git log -1 --format=%cd > src/assets/commit-date.txt"
+
   },
   "private": true,
   "dependencies": {
