@@ -33,54 +33,16 @@ spec:
         - name: ENV
           value: "PROD"
 ---
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: frontend-prod-canary
-  namespace: demo-namespace-prod
-  labels:
-    app: frontend
-    version: canary
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: frontend
-      version: canary
-  template:
-    metadata:
-      labels:
-        app: frontend
-        version: canary
-    spec:
-      containers:
-      - name: frontend
-        image: europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest
-        ports:
-        - containerPort: 80
-        env:
-        - name: BACKEND_IP
-          valueFrom:
-            secretKeyRef:
-              key: BACKEND_IP
-              name: backend-ip
-              optional: false
-        - name: ENV
-          value: "PROD"
----
-apiVersion: networking.istio.io/v1alpha3
-kind: VirtualService
+apiVersion: v1
+kind: Service
 metadata:
   name: frontend
   namespace: demo-namespace-prod
+  labels:
+    app: frontend
 spec:
-  hosts:
-  - your-application-domain.com
-  http:
-  - route:
-    - destination:
-        host: frontend-prod-stable.demo-namespace-prod.svc.cluster.local
-        weight: 50
-    - destination:
-        host: frontend-prod-canary.demo-namespace-prod.svc.cluster.local
-        weight: 50
+  ports:
+  - port: 80
+    name: http
+  selector:
+    app: frontend
