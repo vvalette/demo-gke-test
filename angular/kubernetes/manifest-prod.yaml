@@ -156,6 +156,8 @@ spec:
       number: 80
       name: http
       protocol: HTTP
+    hosts:
+    - frontend.demo-namespace-prod.svc.cluster.local 
 
 
 ---
