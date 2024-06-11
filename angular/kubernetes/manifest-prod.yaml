@@ -28,6 +28,13 @@ spec:
         image: europe-west9-docker.pkg.dev/incubation-ids/demo-gke-repo/angular:latest
         ports:
         - containerPort: 80
+        env:
+        - name: BACKEND_IP
+          valueFrom:
+            secretKeyRef:
+              key: BACKEND_IP
+              name: backend-ip
+              optional: false
 ---
 apiVersion: v1
 kind: Service
