@@ -165,15 +165,20 @@ metadata:
   name: frontend-ingress
   namespace: demo-namespace-prod
 spec:
-
-  gateways:
-  - frontend-gateway
   http:
   - match:
     - uri:
         prefix: /
     route:
     - destination:
-        host: frontend.demo-namespace-prod.svc.cluster.local
+        host: frontend-canary.demo-namespace-prod.svc.cluster.local
+        subset: canary
         port:
           number: 80
+      weight: 50
+    - destination:
+        host: frontend-stable.demo-namespace-prod.svc.cluster.local
+        subset: stable
+        port:
+          number: 80
+      weight: 50
