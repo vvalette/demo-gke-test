@@ -112,17 +112,15 @@ spec:
           prefix: /
     route:
     - destination:
-        host: frontend.demo-namespace-prod.svc.cluster.local
         subset: canary
         port:
           number: 80
       weight: 50  # 50% of traffic to canary
     - destination:
-        host: frontend.demo-namespace-prod.svc.cluster.local
         subset: stable
         port:
           number: 80
-      weight: 50  # 50% of traffic to stable
+      weight: 50
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
