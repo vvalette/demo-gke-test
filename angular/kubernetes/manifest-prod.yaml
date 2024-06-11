@@ -7,7 +7,8 @@ metadata:
   labels:
     app: frontend
     version: stable
-
+  annotations:
+    autopilot.gke.io/warden-version: "2.8.81"
 spec:
   replicas: 3
   selector:
@@ -42,13 +43,13 @@ spec:
                 optional: false
         resources:
           limits:
-            cpu: "250m"
-            ephemeral-storage: "1Gi"
-            memory: "512Mi"
+            cpu: 250m
+            ephemeral-storage: 1Gi
+            memory: 512Mi
           requests:
-            cpu: "250m"
-            ephemeral-storage: "1Gi"
-            memory: "512Mi"
+            cpu: 250m
+            ephemeral-storage: 1Gi
+            memory: 512Mi
         securityContext:
           capabilities:
             drop:
@@ -69,7 +70,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: frontend-prod-canary
+  name: frontend-prod-stable-canary
   namespace: demo-namespace-prod
   labels:
     app: frontend
@@ -108,13 +109,13 @@ spec:
                 optional: false
         resources:
           limits:
-            cpu: "250m"
-            ephemeral-storage: "1Gi"
-            memory: "512Mi"
+            cpu: 250m
+            ephemeral-storage: 1Gi
+            memory: 512Mi
           requests:
-            cpu: "250m"
-            ephemeral-storage: "1Gi"
-            memory: "512Mi"
+            cpu: 250m
+            ephemeral-storage: 1Gi
+            memory: 512Mi
         securityContext:
           capabilities:
             drop:
@@ -131,40 +132,6 @@ spec:
           value: amd64
 
 ---
-# Service for the stable version
-apiVersion: v1
-kind: Service
-metadata:
-  name: frontend-prod-stable
-  namespace: demo-namespace-prod
-spec:
-  selector:
-    app: frontend
-    version: stable
-  ports:
-  - port: 80
-    targetPort: 80
-    protocol: TCP
-  type: LoadBalancer
-
----
-# Service for the canary version
-apiVersion: v1
-kind: Service
-metadata:
-  name: frontend-prod-canary
-  namespace: demo-namespace-prod
-spec:
-  selector:
-    app: frontend
-    version: canary
-  ports:
-  - port: 80
-    targetPort: 80
-    protocol: TCP
-  type: LoadBalancer
-
----
 # Ingress to manage traffic routing
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -175,16 +142,17 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/canary: "true"
     nginx.ingress.kubernetes.io/canary-weight: "50"
+    nginx.ingress.kubernetes.io/set-misc: "step=canary"
 spec:
   rules:
-  - host: gke-demo-cluster-1-99efbf70-dns
+  - host: incubation-ids.page.example.com
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: frontend-prod-canary
+            name: frontend-prod-stable-canary
             port:
               number: 80
       - path: /
@@ -194,7 +162,7 @@ spec:
             name: frontend-prod-stable
             port:
               number: 80
-  defaultBackend:
+  backend:
     service:
       name: frontend-prod-stable
       port:
