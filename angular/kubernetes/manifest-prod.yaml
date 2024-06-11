@@ -40,9 +40,6 @@ metadata:
   namespace: demo-namespace-prod
 spec:
   allocateLoadBalancerNodePorts: true
-  clusterIP: 34.118.237.37
-  clusterIPs:
-    - 34.118.237.37
   externalTrafficPolicy: Cluster
   internalTrafficPolicy: Cluster
   ipFamilies:
