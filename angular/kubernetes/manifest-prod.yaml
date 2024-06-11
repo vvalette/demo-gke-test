@@ -32,6 +32,7 @@ spec:
               optional: false
         - name: ENV
           value: "PROD"
+
 ---
 apiVersion: v1
 kind: Service
@@ -47,6 +48,7 @@ spec:
   selector:
     app: frontend
     version: stable
+
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -82,6 +84,7 @@ spec:
               optional: false
         - name: ENV
           value: "PROD"
+
 ---
 apiVersion: v1
 kind: Service
@@ -97,6 +100,7 @@ spec:
   selector:
     app: frontend
     version: canary
+
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
@@ -120,7 +124,8 @@ spec:
         subset: stable
         port:
           number: 80
-      weight: 50
+      weight: 50  # 50% of traffic to stable
+
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
@@ -136,3 +141,41 @@ spec:
   - name: stable
     labels:
       version: stable
+
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: frontend-gateway
+  namespace: demo-namespace-prod
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*"  # Change this to your domain if you have one
+
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: frontend-ingress
+  namespace: demo-namespace-prod
+spec:
+  hosts:
+  - "*"  # Change this to your domain if you have one
+  gateways:
+  - frontend-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: frontend.demo-namespace-prod.svc.cluster.local
+        port:
+          number: 80
