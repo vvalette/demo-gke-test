@@ -109,22 +109,26 @@ metadata:
   namespace: demo-namespace-prod
 spec:
   hosts:
-  - frontend.demo-namespace-prod.svc.cluster.local
+  - "*"
+  gateways:
+  - frontend-gateway
   http:
   - match:
-      - uri:
-          prefix: /
+    - uri:
+        prefix: /
     route:
     - destination:
+        host: frontend.demo-namespace-prod.svc.cluster.local
         subset: canary
         port:
           number: 80
-      weight: 50  # 50% of traffic to canary
+      weight: 50
     - destination:
+        host: frontend.demo-namespace-prod.svc.cluster.local
         subset: stable
         port:
           number: 80
-      weight: 50  # 50% of traffic to stable
+      weight: 50
 
 ---
 apiVersion: networking.istio.io/v1alpha3
